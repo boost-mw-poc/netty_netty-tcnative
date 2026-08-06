@@ -1332,6 +1332,14 @@ static int find_session_key(tcn_ssl_ctxt_t *c, unsigned char key_name[16], tcn_s
     return result;
 }
 
+#if OPENSSL_VERSION_NUMBER >= 0x30000000L
+static void fill_mac_params(OSSL_PARAM* params, unsigned char* hmac_key, int hmac_key_length) {
+    params[0] = OSSL_PARAM_construct_octet_string(OSSL_MAC_PARAM_KEY, hmac_key, hmac_key_length);
+    params[1] = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_DIGEST, "sha256", 0);
+    params[2] = OSSL_PARAM_construct_end();
+}
+#endif
+
 static int ssl_tlsext_ticket_key_cb(SSL *s,
                                     unsigned char key_name[16],
                                     unsigned char *iv,
@@ -1362,7 +1370,9 @@ static int ssl_tlsext_ticket_key_cb(SSL *s,
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
              HMAC_Init_ex(hmac_ctx, key.hmac_key, 16, EVP_sha256(), NULL);
 #else
-             EVP_MAC_CTX_set_params(mac_ctx, key.mac_params);
+             OSSL_PARAM local_mac_params[3];
+             fill_mac_params(local_mac_params, key.hmac_key, SSL_SESSION_TICKET_HMAC_KEY_LEN);
+             EVP_MAC_CTX_set_params(mac_ctx, local_mac_params);
 #endif
              apr_atomic_inc32(&c->ticket_keys_new);
              return 1;
@@ -1374,7 +1384,9 @@ static int ssl_tlsext_ticket_key_cb(SSL *s,
 #if OPENSSL_VERSION_NUMBER < 0x30000000L
              HMAC_Init_ex(hmac_ctx, key.hmac_key, 16, EVP_sha256(), NULL);
 #else
-             EVP_MAC_CTX_set_params(mac_ctx, key.mac_params);
+             OSSL_PARAM local_mac_params[3];
+             fill_mac_params(local_mac_params, key.hmac_key, SSL_SESSION_TICKET_HMAC_KEY_LEN);
+             EVP_MAC_CTX_set_params(mac_ctx, local_mac_params);
 #endif
              EVP_DecryptInit_ex(ctx, EVP_aes_128_cbc(), NULL, key.aes_key, iv );
              if (!is_current_key) {
@@ -1421,11 +1433,6 @@ TCN_IMPLEMENT_CALL(void, SSLContext, setSessionTicketKeys0)(TCN_STDARGS, jlong c
         key = b + (SSL_SESSION_TICKET_KEY_SIZE * i);
         memcpy(ticket_keys[i].key_name, key, 16);
         memcpy(ticket_keys[i].hmac_key, key + 16, 16);
-#if OPENSSL_VERSION_NUMBER >= 0x30000000L
-        ticket_keys[i].mac_params[0] = OSSL_PARAM_construct_octet_string(OSSL_MAC_PARAM_KEY, ticket_keys[i].hmac_key, 16);
-        ticket_keys[i].mac_params[1] = OSSL_PARAM_construct_utf8_string(OSSL_MAC_PARAM_DIGEST, "sha256", 0);
-        ticket_keys[i].mac_params[2] = OSSL_PARAM_construct_end();
-#endif
         memcpy(ticket_keys[i].aes_key, key + 32, 16);
     }
     (*e)->ReleaseByteArrayElements(e, keys, b, 0);
