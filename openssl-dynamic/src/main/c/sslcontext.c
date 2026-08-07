@@ -2381,12 +2381,13 @@ static enum ssl_private_key_result_t tcn_private_key_complete_java(SSL *ssl, uin
         }
 
         // The task is complete, retrieve the return value that should be signaled back.
+        jint returnValue = (*e)->GetIntField(e, state->ssl_task->task, sslTask_returnValue);
         jbyteArray resultBytes = (*e)->GetObjectField(e, state->ssl_task->task, sslPrivateKeyMethodTask_resultBytes);
 
         tcn_ssl_task_free(e, state->ssl_task);
         state->ssl_task = NULL;
 
-        if (resultBytes == NULL) {
+        if (returnValue != 1 || resultBytes == NULL) {
             return ssl_private_key_failure;
         }
 
