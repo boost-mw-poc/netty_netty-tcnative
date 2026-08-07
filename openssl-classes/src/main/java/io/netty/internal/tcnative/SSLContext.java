@@ -500,6 +500,9 @@ public final class SSLContext {
      * Allow to hook {@link CertificateVerifier} into the handshake processing.
      * This will call {@code SSL_CTX_set_cert_verify_callback} and so replace the default verification
      * callback used by openssl
+     * <p>
+     * <strong>Important: This method must only be called before any SSL object was created and used
+     * that belongs to this context. Failing to do so results in undefined behaviour.</strong>
      * @param ctx Server or Client context to use.
      * @param verifier the verifier to call during handshake.
      */
@@ -509,6 +512,9 @@ public final class SSLContext {
      * Allow to hook {@link CertificateRequestedCallback} into the certificate choosing process.
      * This will call {@code SSL_CTX_set_client_cert_cb} and so replace the default verification
      * callback used by openssl
+     * <p>
+     * <strong>Important: This method must only be called before any SSL object was created and used
+     * that belongs to this context. Failing to do so results in undefined behaviour.</strong>
      * @param ctx Server or Client context to use.
      * @param callback the callback to call during certificate selection.
      * @deprecated use {@link #setCertificateCallback(long, CertificateCallback)}
@@ -520,6 +526,9 @@ public final class SSLContext {
      * Allow to hook {@link CertificateCallback} into the certificate choosing process.
      * This will call {@code SSL_CTX_set_cert_cb} and so replace the default verification
      * callback used by openssl
+     * <p>
+     * <strong>Important: This method must only be called before any SSL object was created and used
+     * that belongs to this context. Failing to do so results in undefined behaviour.</strong>
      * @param ctx Server or Client context to use.
      * @param callback the callback to call during certificate selection.
      */
@@ -529,6 +538,9 @@ public final class SSLContext {
      * Allow to hook {@link SniHostNameMatcher} into the sni processing.
      * This will call {@code SSL_CTX_set_tlsext_servername_callback} and so replace the default
      * callback used by openssl
+     * <p>
+     * <strong>Important: This method must only be called before any SSL object was created and used
+     * that belongs to this context. Failing to do so results in undefined behaviour.</strong>
      * @param ctx Server or Client context to use.
      * @param matcher the matcher to call during sni hostname matching.
      */
@@ -541,6 +553,9 @@ public final class SSLContext {
      * <p>
      * <strong>Warning:</strong> The log output will contain secret key material, and can be used to decrypt
      * TLS sessions! The log output should be handled with the same care given to the private keys.
+     * <p>
+     * <strong>Important: This method must only be called before any SSL object was created and used
+     * that belongs to this context. Failing to do so results in undefined behaviour.</strong>
      * @param ctx Server or Client context to use.
      * @param callback the callback to call when delivering debug output.
      * @return {@code true} if the key-log callback was assigned,
@@ -722,7 +737,9 @@ public final class SSLContext {
 
     /**
      * Set the {@link SSLSessionCache} that will be used if session caching is enabled.
-     * 
+     * <p>
+     * <strong>Important: This method must only be called before any SSL object was created and used
+     * that belongs to this context. Failing to do so results in undefined behaviour.</strong>
      * @param ctx context to use.
      * @param cache cache to use for the given context.
      */
