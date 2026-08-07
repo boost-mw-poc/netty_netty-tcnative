@@ -2612,7 +2612,7 @@ TCN_IMPLEMENT_CALL(jstring, SSL, getSniHostname)(TCN_STDARGS, jlong ssl)
     if (servername == NULL) {
         return NULL;
     }
-    return tcn_new_string(e, servername);
+    return tcn_new_stringn(e, servername, strlen(servername));
 }
 
 TCN_IMPLEMENT_CALL(jboolean, SSL, isSessionReused)(TCN_STDARGS, jlong ssl)

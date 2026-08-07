@@ -2616,7 +2616,7 @@ static int ssl_servername_cb(SSL *ssl, int *ad, void *arg)
         if (tcn_get_java_env(&e) != JNI_OK) {
             return SSL_TLSEXT_ERR_ALERT_FATAL;
         }
-        if ((servername_str = (*e)->NewStringUTF(e, servername)) == NULL) {
+        if ((servername_str = tcn_new_stringn(e, servername, strlen(servername))) == NULL) {
             return SSL_TLSEXT_ERR_ALERT_FATAL;
         }
         result = (*e)->CallBooleanMethod(e, c->sni_hostname_matcher, c->sni_hostname_matcher_method, P2J(ssl), servername_str);
