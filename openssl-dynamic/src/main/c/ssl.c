@@ -196,7 +196,9 @@ static jint tcn_write_to_bytebuffer(BIO* bio, const char* in, int inl) {
         }
 
         writeAmount = TCN_MIN(nonApplicationBufferFreeSpace, (jint) inl) * sizeof(char);
-        startIndex = bioUserData->nonApplicationBufferOffset + bioUserData->nonApplicationBufferLength;
+        // use modulo to account for wrap around the ring buffer that buffers data.
+        startIndex = (bioUserData->nonApplicationBufferOffset + bioUserData->nonApplicationBufferLength)
+                                          % bioUserData->nonApplicationBufferSize;
         writeChunk = bioUserData->nonApplicationBufferSize - startIndex;
 
 #ifdef NETTY_TCNATIVE_BIO_DEBUG
