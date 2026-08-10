@@ -225,7 +225,14 @@ static jint tcn_write_to_bytebuffer(BIO* bio, const char* in, int inl) {
 
     // First check if we need to drain data queued in the internal SSL buffer.
     if (bioUserData->nonApplicationBufferLength != 0) {
-        writeAmount = tcn_flush_sslbuffer_to_bytebuffer(bioUserData);
+        // Internally queued data that is flushed will not be reported back to the caller as the return
+        // value is usually used to keep track how much data was written of the given input buffer.
+        tcn_flush_sslbuffer_to_bytebuffer(bioUserData);
+
+        if (bioUserData->bufferLength == 0) {
+            BIO_set_retry_write(bio); // no space left.
+            return -1;
+        }
     }
 
     // Next write "in" into what ever space the ByteBuffer has available.
@@ -239,7 +246,7 @@ static jint tcn_write_to_bytebuffer(BIO* bio, const char* in, int inl) {
     bioUserData->bufferLength -= writeChunk;
     bioUserData->buffer += writeChunk; // Pointer arithmetic based on char* type
 
-    return writeAmount + writeChunk;
+    return writeChunk;
 }
 
 static jint tcn_read_from_bytebuffer(BIO* bio, char *out, int outl) {
