@@ -587,6 +587,9 @@ public final class SSLContext {
 
     /**
      * Set next protocol for next protocol negotiation extension
+     * <p>
+     * <strong>Important: This method must only be called before any SSL object was created and used
+     * that belongs to this context. Failing to do so results in undefined behaviour.</strong>
      * @param ctx Server context to use.
      * @param nextProtos protocols in priority order
      * @param selectorFailureBehavior see {@link SSL#SSL_SELECTOR_FAILURE_NO_ADVERTISE}
@@ -600,6 +603,9 @@ public final class SSLContext {
 
     /**
      * Set application layer protocol for application layer protocol negotiation extension
+     * <p>
+     * <strong>Important: This method must only be called before any SSL object was created and used
+     * that belongs to this context. Failing to do so results in undefined behaviour.</strong>
      * @param ctx Server context to use.
      * @param alpnProtos protocols in priority order
      * @param selectorFailureBehavior see {@link SSL#SSL_SELECTOR_FAILURE_NO_ADVERTISE}
